@@ -1,6 +1,8 @@
 package com.example.demo;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,8 +13,8 @@ public class TaskController {
     private TaskRepository repo;
 
     @PostMapping("/tasks")
-    public Task addTask(@RequestBody Task task) {
-        return repo.save(task);
+    public ResponseEntity<Task> addTask(@Valid @RequestBody Task task) {
+        return ResponseEntity.ok(repo.save(task));
     }
 
     @GetMapping("/tasks")
@@ -21,7 +23,11 @@ public class TaskController {
     }
 
     @DeleteMapping("/tasks/{id}")
-    public void deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        if (!repo.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         repo.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
